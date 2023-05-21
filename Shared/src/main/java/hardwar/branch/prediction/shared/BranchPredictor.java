@@ -4,16 +4,16 @@ public interface BranchPredictor extends Monitorable {
     /**
      * Predict if the branch is taken or not
      *
-     * @param branchAddress the PC at branch instruction
+     * @param instruction the branch instruction
      * @return predicted result of branch
      */
-    BranchResult predict(Bit[] branchAddress);
+    BranchResult predict(BranchInstruction instruction);
 
     /**
      * The dynamic predictor will update its state based on the new data
      *
-     * @param branchAddress the branch address
-     * @param actual        the actual result of branch (taken or not)
+     * @param instruction the branch instruction
+     * @param result      the actual result of branch (taken or not)
      */
-    void update(Bit[] branchAddress, BranchResult actual);
+    void update(BranchInstruction instruction, BranchResult result);
 }
