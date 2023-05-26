@@ -1,5 +1,7 @@
 #!/bin/bash
 
+readonly JUDGED_DIR="src/main/java/hardwar/branch/prediction/judged"
+
 # Define usage function to display script usage instructions
 usage() {
   echo "Usage: $0 --predictor <predictor-name> --source <source-file>"
@@ -42,8 +44,17 @@ if [[ -z "$predictor" || -z "$source_file" ]]; then
 fi
 
 # Check if the predictor directory exists
-if [[ ! -d "Test/$predictor" ]]; then
+readonly predictor_path="Test/$predictor"
+if [[ ! -d "$predictor_path" ]]; then
   echo "Predictor directory '$predictor' does not exist."
+  exit 1
+fi
+
+# Check if `instruction.json` and `result.json` files exist
+readonly instruction_file="$predictor_path/instruction.json"
+readonly result_file="$predictor_path/result.json"
+if [[ ! -f "$instruction_file" || ! -f "$result_file" ]]; then
+  echo "Instruction or result file does not exist inside the predictor directory '$predictor'"
   exit 1
 fi
 
