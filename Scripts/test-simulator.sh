@@ -1,26 +1,27 @@
-#!/usr/bin/env bash
-
-set -o errexit
-set -o nounset
+#!/bin/bash
 
 # Define usage function to display script usage instructions
 usage() {
-  echo "Usage: $0 -p <predictor-name> <file1> [<file2> ...]"
+  echo "Usage: $0 --predictor <predictor-name> --source <source-file>"
 }
 
 # Process command-line arguments
-options=$(getopt -o p: --long predictor: -n "$0" -- "$@")
+options=$(getopt -o p:s: --long predictor:,source: -n "$0" -- "$@")
 eval set -- "$options"
 
-# Variables to store the command-line arguments
+# Variables to store the values
 predictor=""
-src_files=()
+source_file=""
 
 # Loop through the command-line arguments
 while true; do
   case "$1" in
     -p | --predictor)
       predictor="$2"
+      shift 2
+    ;;
+    -s | --source)
+      source_file="$2"
       shift 2
     ;;
     --)
@@ -35,23 +36,19 @@ while true; do
 done
 
 # Check if the required arguments are provided
-if [[ -z "$predictor" || $# -eq 0 ]]; then
+if [[ -z "$predictor" || -z "$source_file" ]]; then
   usage
   exit 1
 fi
 
 # Check if the predictor directory exists
-predictor_path="Test/$predictor"
-if [[ ! -d "$predictor_path" ]]; then
+if [[ ! -d "Test/$predictor" ]]; then
   echo "Predictor directory '$predictor' does not exist."
   exit 1
 fi
 
-# Check if all src_files exist
-for file in "$@"; do
-  if [[ ! -f "$file" ]]; then
-    echo "File '$file' does not exist."
-    exit 1
-  fi
-  src_files+=("$file")
-done
+# Check if the source file exists
+if [[ ! -f "$source_file" ]]; then
+  echo "Source file '$source_file' does not exist."
+  exit 1
+fi
