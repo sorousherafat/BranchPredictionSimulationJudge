@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -o errexit
+set -o nounset
+
 readonly JUDGED_DIR="src/main/java/hardwar/branch/prediction/judged"
 
 # Define usage function to display script usage instructions
