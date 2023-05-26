@@ -13,8 +13,7 @@ public class ReflectivePredictorProvider implements PredictorProvider {
     }
 
     private static void displayErrorAndExit(String message) {
-        System.err.println(message);
-        System.exit(1);
+        throw new RuntimeException(message);
     }
     
     private final String predictorName;
