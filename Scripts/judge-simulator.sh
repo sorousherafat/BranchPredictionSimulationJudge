@@ -72,3 +72,11 @@ cd ToBeJudgedPredictor
 rm "$JUDGED_DIR"/* || true
 cp "../$source_file" "$JUDGED_DIR"
 mvn clean install
+
+echo ""
+
+# Judge the predictor
+cd ../Judge
+mvn clean test -Dpredictor="../$predictor"                         \
+               -Dinstruction="../$predictor_path/instruction.json" \
+               -Dresult="../$predictor_path/result.json"
