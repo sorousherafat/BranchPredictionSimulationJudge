@@ -66,3 +66,9 @@ if [[ ! -f "$source_file" ]]; then
   echo "Source file '$source_file' does not exist."
   exit 1
 fi
+
+# Build and install the source file
+cd ToBeJudgedPredictor
+rm "$JUDGED_DIR"/* || true
+cp "../$source_file" "$JUDGED_DIR"
+mvn clean install
