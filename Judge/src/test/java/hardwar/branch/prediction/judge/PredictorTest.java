@@ -1,5 +1,6 @@
 package hardwar.branch.prediction.judge;
 
+import hardwar.branch.prediction.judge.serializers.FileReader;
 import hardwar.branch.prediction.shared.BranchInstruction;
 import hardwar.branch.prediction.shared.BranchPredictor;
 import hardwar.branch.prediction.shared.BranchResult;
@@ -14,8 +15,9 @@ class PredictorTest {
     @Test
     void testPredictor() {
         CommandLineArgument argument = new CommandLineArgument(System.getProperties());
-        List<BranchInstruction> instructions = ListUtils.readListFromFile(argument.getInstructionFile());
-        List<BranchResult> expectedResults = ListUtils.readListFromFile(argument.getResultFile());
+        FileReader fileReader = new FileReader();
+        List<BranchInstruction> instructions = fileReader.readFromFile(argument.getInstructionFile());
+        List<BranchResult> expectedResults = fileReader.readFromFile(argument.getResultFile());
         PredictorSimulator simulator = getSimulator(argument.getPredictorName());
         List<BranchResult> actualResults = simulator.simulate(instructions);
         reportHitRate(expectedResults, actualResults);

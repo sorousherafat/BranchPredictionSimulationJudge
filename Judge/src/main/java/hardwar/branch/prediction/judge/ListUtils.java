@@ -14,17 +14,4 @@ public class ListUtils {
                 .filter(i -> firstList.get(i).equals(secondList.get(i)))
                 .count();
     }
-
-    public static <T> List<T> readListFromFile(File file) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<T> list = null;
-        try {
-            list = objectMapper.readValue(file, new TypeReference<List<T>>() {
-            });
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            System.exit(1);
-        }
-        return list;
-    }
 }
