@@ -26,4 +26,13 @@ public class BranchInstruction {
     public BitSet getTargetAddress() {
         return targetAddress;
     }
+
+    @Override
+    public String toString() {
+        return "BranchInstruction{" +
+                "opcode=" + opcode +
+                ", sourceAddress=" + sourceAddress +
+                ", targetAddress=" + targetAddress +
+                '}';
+    }
 }
