@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -o errexit
+set -o nounset
+
 # Define usage function to display script usage instructions
 usage() {
   echo "Usage: $0 -p <predictor-name> <file1> [<file2> ...]"
