@@ -1,1 +1,1 @@
-[]
+[{"opcode":["ONE","ZERO","ZERO"],"instructionAddress":["ZERO","ZERO","ZERO"],"jumpAddress":["ONE","ONE","ONE"]},{"opcode":["ONE","ONE","ZERO"],"instructionAddress":["ZERO","ZERO","ONE"],"jumpAddress":["ZERO","ONE","ZERO"]},{"opcode":["ZERO","ONE","ONE"],"instructionAddress":["ZERO","ZERO","ZERO"],"jumpAddress":["ONE","ONE","ZERO"]}]
