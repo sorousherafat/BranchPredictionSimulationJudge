@@ -22,9 +22,17 @@ public class FileReader {
         objectMapper.registerModule(module);
     }
 
-    public <T> List<T> readFromFile(File file) {
+    public List<BranchInstruction> readInstructions(File file) {
         try {
-            return objectMapper.readValue(file, new TypeReference<List<T>>() {});
+            return objectMapper.readValue(file, new TypeReference<List<BranchInstruction>>() {});
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public List<BranchResult> readResults(File file) {
+        try {
+            return objectMapper.readValue(file, new TypeReference<List<BranchResult>>() {});
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
