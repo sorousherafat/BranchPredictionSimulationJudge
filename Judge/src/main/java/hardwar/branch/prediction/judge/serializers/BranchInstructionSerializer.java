@@ -18,8 +18,8 @@ public class BranchInstructionSerializer extends StdSerializer<BranchInstruction
     public void serialize(BranchInstruction instruction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         writeBitSetField(jsonGenerator, "opcode", instruction.getOpcode());
-        writeBitSetField(jsonGenerator, "sourceAddress", instruction.getSourceAddress());
-        writeBitSetField(jsonGenerator, "targetAddress", instruction.getTargetAddress());
+        writeBitSetField(jsonGenerator, "sourceAddress", instruction.getInstructionAddress());
+        writeBitSetField(jsonGenerator, "targetAddress", instruction.getJumpAddress());
         jsonGenerator.writeEndObject();
     }
 

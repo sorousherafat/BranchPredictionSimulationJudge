@@ -1,38 +1,37 @@
 package hardwar.branch.prediction.shared;
 
-import java.util.BitSet;
 
 public class BranchInstruction {
-    private final BitSet opcode;
+    private final Bit[] opcode;
 
-    private final BitSet sourceAddress;
+    private final Bit[] instructionAddress;
 
-    private final BitSet targetAddress;
+    private final Bit[] jumpAddress;
 
-    public BranchInstruction(BitSet opcode, BitSet sourceAddress, BitSet targetAddress) {
+    public BranchInstruction(Bit[] opcode, Bit[] sourceAddress, Bit[] targetAddress) {
         this.opcode = opcode;
-        this.sourceAddress = sourceAddress;
-        this.targetAddress = targetAddress;
+        this.instructionAddress = sourceAddress;
+        this.jumpAddress = targetAddress;
     }
 
-    public BitSet getOpcode() {
+    public Bit[] getOpcode() {
         return opcode;
     }
 
-    public BitSet getSourceAddress() {
-        return sourceAddress;
+    public Bit[] getInstructionAddress() {
+        return instructionAddress;
     }
 
-    public BitSet getTargetAddress() {
-        return targetAddress;
+    public Bit[] getJumpAddress() {
+        return jumpAddress;
     }
 
     @Override
     public String toString() {
         return "BranchInstruction{" +
-                "opcode=" + opcode +
-                ", sourceAddress=" + sourceAddress +
-                ", targetAddress=" + targetAddress +
+                "opcode=" + Bit.arrayToString(opcode) +
+                ", sourceAddress=" + Bit.arrayToString(instructionAddress) +
+                ", targetAddress=" + Bit.arrayToString(jumpAddress) +
                 '}';
     }
 }
