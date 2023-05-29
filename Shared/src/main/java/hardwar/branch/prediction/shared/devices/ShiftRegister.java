@@ -3,7 +3,7 @@ package hardwar.branch.prediction.shared.devices;
 import hardwar.branch.prediction.shared.Bit;
 import hardwar.branch.prediction.shared.Monitorable;
 
-public interface Register extends Monitorable {
+public interface ShiftRegister extends Monitorable {
     Bit[] read();
 
     void load(Bit[] bits);
