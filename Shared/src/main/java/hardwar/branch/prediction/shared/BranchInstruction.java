@@ -8,10 +8,10 @@ public class BranchInstruction {
 
     private final Bit[] jumpAddress;
 
-    public BranchInstruction(Bit[] opcode, Bit[] sourceAddress, Bit[] targetAddress) {
+    public BranchInstruction(Bit[] opcode, Bit[] instructionAddress, Bit[] jumpAddress) {
         this.opcode = opcode;
-        this.instructionAddress = sourceAddress;
-        this.jumpAddress = targetAddress;
+        this.instructionAddress = instructionAddress;
+        this.jumpAddress = jumpAddress;
     }
 
     public Bit[] getOpcode() {
