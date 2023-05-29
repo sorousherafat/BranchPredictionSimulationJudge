@@ -3,6 +3,7 @@
 set -o errexit
 set -o nounset
 
+readonly ROOT_DIR="$(pwd)"
 readonly JUDGED_DIR="src/main/java/hardwar/branch/prediction/judged"
 
 # Define usage function to display script usage instructions
@@ -21,21 +22,21 @@ source_file=""
 # Loop through the command-line arguments
 while true; do
   case "$1" in
-    -p | --predictor)
-      predictor="$2"
-      shift 2
+  -p | --predictor)
+    predictor="$2"
+    shift 2
     ;;
-    -s | --source)
-      source_file="$2"
-      shift 2
+  -s | --source)
+    source_file="$2"
+    shift 2
     ;;
-    --)
-      shift
-      break
+  --)
+    shift
+    break
     ;;
-    *)
-      usage
-      exit 1
+  *)
+    usage
+    exit 1
     ;;
   esac
 done
@@ -67,16 +68,22 @@ if [[ ! -f "$source_file" ]]; then
   exit 1
 fi
 
-# Build and install the source file
-cd ToBeJudgedPredictor
-rm "$JUDGED_DIR"/* || true
-cp "../$source_file" "$JUDGED_DIR"
-mvn clean install
 
-echo ""
+build-project() {
+  cd "$ROOT_DIR"
+  cd "$1"
+  mvn clean install
+  echo ""
+}
+
+for project in "Shared" "Predictor" "Judge"; do
+  build-project "$project"
+done
+
+cd "$ROOT_DIR"
 
 # Judge the predictor
-cd ../Judge
-mvn clean test -Dpredictor="../$predictor"                         \
-               -Dinstruction="../$predictor_path/instruction.json" \
-               -Dresult="../$predictor_path/result.json"
+java -jar Judge/target/Judge-1.0-SNAPSHOT-jar-with-dependencies.jar \
+     --instruction "$instruction_file"                              \
+     --result "$result_file"                                        \
+     --predictor "$predictor"
