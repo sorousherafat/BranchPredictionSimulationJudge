@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>hardwar.branch.prediction</groupId>
-            <artifactId>ToBeJudgedPredictor</artifactId>
+            <artifactId>Predictor</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -58,7 +58,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <excludes>
-                        <exclude>hardwar.branch.prediction:ToBeJudgedPredictor</exclude>
+                        <exclude>hardwar.branch.prediction:Predictor</exclude>
                     </excludes>
                 </configuration>
                 <executions>
