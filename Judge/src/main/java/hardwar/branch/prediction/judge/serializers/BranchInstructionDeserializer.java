@@ -6,33 +6,36 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import hardwar.branch.prediction.shared.Bit;
 import hardwar.branch.prediction.shared.BranchInstruction;
 
 import java.io.IOException;
 import java.util.BitSet;
 
 public class BranchInstructionDeserializer extends JsonDeserializer<BranchInstruction> {
-
     @Override
     public BranchInstruction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-        JsonNode node = jsonParser.readValueAsTree();
-        JsonNode opcodeNode = node.get("opcode");
-        JsonNode sourceAddressNode = node.get("sourceAddress");
-        JsonNode targetAddressNode = node.get("targetAddress");
+        Bit[] opcode = null;
+        Bit[] instructionAddress = null;
+        Bit[] jumpAddress = null;
 
-        BitSet opcode = convertJsonArrayToBitSet(opcodeNode);
-        BitSet sourceAddress = convertJsonArrayToBitSet(sourceAddressNode);
-        BitSet targetAddress = convertJsonArrayToBitSet(targetAddressNode);
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            String fieldName = jsonParser.getCurrentName();
+            jsonParser.nextToken();
 
-        return new BranchInstruction(opcode, sourceAddress, targetAddress);
-    }
-
-    private BitSet convertJsonArrayToBitSet(JsonNode node) {
-        BitSet bitSet = new BitSet();
-        for (JsonNode elementNode : node) {
-            int value = elementNode.asInt();
-            bitSet.set(value);
+            switch (fieldName) {
+                case "opcode":
+                    opcode = jsonParser.readValueAs(Bit[].class);
+                    break;
+                case "instructionAddress":
+                    instructionAddress = jsonParser.readValueAs(Bit[].class);
+                    break;
+                case "jumpAddress":
+                    jumpAddress = jsonParser.readValueAs(Bit[].class);
+                    break;
+            }
         }
-        return bitSet;
+
+        return new BranchInstruction(opcode, instructionAddress, jumpAddress);
     }
 }
