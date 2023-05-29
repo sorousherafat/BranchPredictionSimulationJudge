@@ -7,8 +7,9 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Shared" />
+        <module name="Predictor" />
         <module name="Judge" />
-        <module name="ToBeJudgedPredictor" />
+        <module name="Predictors" />
       </profile>
     </annotationProcessing>
   </component>

@@ -3,9 +3,11 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/Judge/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Judge/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Predictor/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Predictor/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Predictors/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Predictors/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Shared/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Shared/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/ToBeJudgedPredictor/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/ToBeJudgedPredictor/src/main/resources" charset="UTF-8" />
   </component>
 </project>
