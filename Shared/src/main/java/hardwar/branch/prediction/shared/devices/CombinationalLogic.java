@@ -36,7 +36,7 @@ public final class CombinationalLogic {
         int numberInDecimal = Bit.toNumber(input);
 
         // if the counter is saturated (upper limit) then return the same bits.
-        if (numberInDecimal == Math.pow(2, len - 1) && up) {
+        if (numberInDecimal == Math.pow(2, len) - 1 && up) {
             return Arrays.copyOf(input, len);
         }
         // if the counter is saturated (lower limit) then return the same bits.
