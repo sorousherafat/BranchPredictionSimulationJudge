@@ -57,6 +57,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <!-- Exclude `Predictor` project, because we want to judge different predictors with a single jar -->
                     <excludes>
                         <exclude>hardwar.branch.prediction:Predictor</exclude>
                     </excludes>
