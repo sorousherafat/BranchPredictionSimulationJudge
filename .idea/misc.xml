@@ -9,6 +9,7 @@
         <option value="$PROJECT_DIR$/ToBeJudgedPredictor/pom.xml" />
         <option value="$PROJECT_DIR$/Predictor/pom.xml" />
         <option value="$PROJECT_DIR$/Predictors/pom.xml" />
+        <option value="$PROJECT_DIR$/WorkloadGenerator/pom.xml" />
       </list>
     </option>
   </component>
