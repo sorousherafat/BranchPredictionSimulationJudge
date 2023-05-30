@@ -1,89 +1,63 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
+readonly ROOT_DIR="$PWD"
 
-readonly ROOT_DIR="$(pwd)"
-readonly JUDGED_DIR="src/main/java/hardwar/branch/prediction/judged"
-
-# Define usage function to display script usage instructions
-usage() {
-  echo "Usage: $0 --predictor <predictor-name> --source <source-file>"
+err() {
+  echo "$1" >&2
 }
 
-# Process command-line arguments
-options=$(getopt -o p:s: --long predictor:,source: -n "$0" -- "$@")
-eval set -- "$options"
-
-# Variables to store the values
-predictor=""
-source_file=""
-
-# Loop through the command-line arguments
-while true; do
-  case "$1" in
-  -p | --predictor)
-    predictor="$2"
-    shift 2
-    ;;
-  -s | --source)
-    source_file="$2"
-    shift 2
-    ;;
-  --)
-    shift
-    break
-    ;;
-  *)
-    usage
-    exit 1
-    ;;
-  esac
-done
-
-# Check if the required arguments are provided
-if [[ -z "$predictor" || -z "$source_file" ]]; then
-  usage
-  exit 1
-fi
-
-# Check if the predictor directory exists
-readonly predictor_path="Test/$predictor"
-if [[ ! -d "$predictor_path" ]]; then
-  echo "Predictor directory '$predictor' does not exist."
-  exit 1
-fi
-
-# Check if `instruction.json` and `result.json` files exist
-readonly instruction_file="$predictor_path/instruction.json"
-readonly result_file="$predictor_path/result.json"
-if [[ ! -f "$instruction_file" || ! -f "$result_file" ]]; then
-  echo "Instruction or result file does not exist inside the predictor directory '$predictor'"
-  exit 1
-fi
-
-# Check if the source file exists
-if [[ ! -f "$source_file" ]]; then
-  echo "Source file '$source_file' does not exist."
-  exit 1
-fi
-
-
 build-project() {
-  cd "$ROOT_DIR"
-  cd "$1"
+  cd "$ROOT_DIR" || exit 1
+  cd "$1" || exit 1
   mvn clean install
   echo ""
 }
 
+check-all-exist() {
+  local array="$*"
+  for file in "${array[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      err "File $file does not exist"
+      exit 1
+    fi
+  done
+}
+
+if [[ "${#PREDICTORS[@]}" != "${#SRC_FILES[@]}" || "${#SRC_FILES[@]}" != "${#INSTRUCTIONS[@]}" || "${#INSTRUCTIONS[@]}" != "${#RESULTS[@]}" ]]; then
+  err "Number of predictors, src files, instruction files and result files are not equal"
+  exit 1
+fi
+
+tests_count="${#PREDICTORS[@]}"
+if [[ "$tests_count" == 0 ]]; then
+  err "There are no predictors, src files, instruction files and result files specified in environment"
+  exit 1
+fi
+
+for array in "${SRC_FILES[@]}" "${INSTRUCTIONS[@]}" "${RESULTS[@]}"; do
+  check-all-exist "$array"
+done
+
+rm "Predictor/src/main/java/hardwar/branch/prediction/judged/"*
+for ((i = 0; i < tests_count; i++)); do
+  file="${SRC_FILES[$i]}"
+  cp "$file" "Predictor/src/main/java/hardwar/branch/prediction/judged/"
+done
+
 for project in "Shared" "Predictor" "Judge"; do
   build-project "$project"
 done
+cd "$ROOT_DIR" || exit 1
 
-cd "$ROOT_DIR"
+for ((i = 0; i < tests_count; i++)); do
+  predictor_name="${PREDICTORS[$i]}"
+  instruction_file="${INSTRUCTIONS[$i]}"
+  result_file="${RESULTS[$i]}"
 
-# Judge the predictor
-java -jar Judge/target/Judge-1.0-SNAPSHOT-jar-with-dependencies.jar \
-     --instruction "$instruction_file"                              \
-     --result "$result_file"                                        \
-     --predictor "$predictor"
+  java -jar Judge/target/Judge-1.0-SNAPSHOT-jar-with-dependencies.jar \
+    --instruction "$instruction_file" \
+    --result "$result_file" \
+    --predictor "$predictor_name"
+done
+
+rm "Predictor/src/main/java/hardwar/branch/prediction/judged/"*
