@@ -36,7 +36,7 @@ public class CommandLineArguments {
         public File convert(String value) {
             File file = new File(value);
             if (!file.exists())
-                throw new ParameterException("File '" + value + "'does not exist");
+                throw new ParameterException("File '" + value + "' does not exist");
             return file;
         }
     }
