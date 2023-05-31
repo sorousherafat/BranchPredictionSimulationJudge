@@ -9,7 +9,8 @@ public class ReflectivePredictorProvider implements PredictorProvider {
     private static final String PREDICTOR_PACKAGE_NAME = "hardwar.branch.prediction.judged";
 
     private static String getQualifiedTypeName(String typeName) {
-        return PREDICTOR_PACKAGE_NAME + "." + getRealTypeName(typeName);
+        String realTypeName = getRealTypeName(typeName);
+        return PREDICTOR_PACKAGE_NAME + "." + realTypeName + "." + realTypeName;
     }
 
     private static String getRealTypeName(String typeName) {

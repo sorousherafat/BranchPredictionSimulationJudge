@@ -27,7 +27,7 @@ public class Judge {
         List<BranchResult> expectedResults = fileReader.readResults(arguments.getResultFile());
 
         PredictorSimulator simulator = getSimulator(arguments.getPredictorName());
-        List<BranchResult> actualResults = simulator.simulate(instructions);
+        List<BranchResult> actualResults = simulator.simulate(instructions, expectedResults);
 
         boolean testPassed = actualResults.equals(expectedResults);
         if (!testPassed) {

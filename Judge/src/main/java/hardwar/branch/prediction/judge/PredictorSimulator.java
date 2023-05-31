@@ -7,6 +7,7 @@ import hardwar.branch.prediction.shared.BranchResult;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PredictorSimulator {
     private final BranchPredictor predictor;
@@ -15,9 +16,18 @@ public class PredictorSimulator {
         this.predictor = predictor;
     }
 
-    public List<BranchResult> simulate(List<BranchInstruction> instructions) {
-        return instructions.stream()
-                .map(predictor::predict)
-                .collect(Collectors.toCollection(LinkedList::new));
+    public List<BranchResult> simulate(List<BranchInstruction> instructions, List<BranchResult> results) {
+        if (instructions.size() != results.size())
+            throw new RuntimeException("Instructions and results should have same size");
+
+        return IntStream.range(0, instructions.size())
+                .mapToObj(i -> {
+                    BranchInstruction instruction = instructions.get(i);
+                    BranchResult result = results.get(i);
+                    BranchResult predictedResult = predictor.predict(instruction);
+                    predictor.update(instruction, result);
+                    return predictedResult;
+                }).collect(Collectors.toList());
+        // ...
     }
 }
