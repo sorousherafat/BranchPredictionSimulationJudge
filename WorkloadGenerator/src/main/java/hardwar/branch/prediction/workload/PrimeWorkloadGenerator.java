@@ -1,5 +1,6 @@
 package hardwar.branch.prediction.workload;
 
+import hardwar.branch.prediction.judge.ListUtils;
 import hardwar.branch.prediction.judge.PredictorProvider;
 import hardwar.branch.prediction.judge.PredictorSimulator;
 import hardwar.branch.prediction.judge.ReflectivePredictorProvider;
@@ -33,7 +34,9 @@ public class PrimeWorkloadGenerator implements WorkloadGenerator {
             boolean passedTest = tester.test(actualWorkload);
             if (passedTest) {
                 List<BranchInstruction> instruction = actualWorkload.getInstruction();
-                List<BranchResult> predictionResult = simulator.simulate(instruction);
+                List<BranchResult> predictionResult = simulator.simulate(instruction, actualWorkload.getResult());
+                double hitRate = ListUtils.getSimilarity(actualWorkload.getResult(), predictionResult);
+                System.out.printf("Hit rate: %f\n", hitRate);
                 return new Workload(instruction, predictionResult);
             }
 

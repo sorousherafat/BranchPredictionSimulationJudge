@@ -45,7 +45,7 @@ public class PredictorComparator {
     private double getHitRate(BranchPredictor predictor, Workload workload) {
         PredictorSimulator simulator = new PredictorSimulator(predictor);
         List<BranchResult> expectedResult = workload.getResult();
-        List<BranchResult> actualResult = simulator.simulate(workload.getInstruction());
+        List<BranchResult> actualResult = simulator.simulate(workload.getInstruction(), expectedResult);
         return ListUtils.getSimilarity(expectedResult, actualResult);
     }
 }
