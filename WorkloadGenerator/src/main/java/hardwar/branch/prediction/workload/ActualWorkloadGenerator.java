@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-public class SampleWorkloadGenerator {
+public class ActualWorkloadGenerator {
     private static final Random random = new SecureRandom();
 
     private static final Function<Integer, Bit> randomBitGenerator = i -> Bit.of(random.nextDouble() < 0.5);
@@ -31,7 +31,7 @@ public class SampleWorkloadGenerator {
 
     private final List<Bit[]> targetAddresses;
 
-    public SampleWorkloadGenerator(int branchCount, int opcodeLength, int addressLength, int distinctAddressCount, double takenResultRate) {
+    public ActualWorkloadGenerator(int branchCount, int opcodeLength, int addressLength, int distinctAddressCount, double takenResultRate) {
         this.branchCount = branchCount;
         this.opcodeLength = opcodeLength;
         this.addressLength = addressLength;
