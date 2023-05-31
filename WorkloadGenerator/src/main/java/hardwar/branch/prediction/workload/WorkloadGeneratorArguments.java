@@ -7,10 +7,10 @@ import hardwar.branch.prediction.judge.args.NonEmptyStringValidator;
 import java.util.List;
 
 public class WorkloadGeneratorArguments {
-    @Parameter(names = {"--predictor", "-p"}, description = "Name of the base predictor", validateWith = NonEmptyStringValidator.class, help = true, required = true)
+    @Parameter(names = {"--predictor", "-p"}, description = "Name of the base predictor", validateWith = NonEmptyStringValidator.class, help = true)
     private String basePredictor;
 
-    @Parameter(description = "List of all the predictors to check", validateWith = NonEmptyStringListValidator.class, help = true, required = true)
+    @Parameter(description = "List of all the predictors to check", validateWith = NonEmptyStringListValidator.class, help = true)
     private List<String> predictors;
 
     public String getBasePredictor() {
