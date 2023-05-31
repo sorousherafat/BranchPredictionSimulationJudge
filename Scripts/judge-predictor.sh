@@ -10,7 +10,7 @@ build-project() {
   cd "$ROOT_DIR" || exit 1
   cd "$1" || exit 1
   mvn clean install
-  echo ""
+  echo "Build done!"
 }
 
 check-all-exist() {
@@ -23,10 +23,12 @@ check-all-exist() {
   done
 }
 
-if [[ "${#PREDICTORS[@]}" != "${#SRC_FILES[@]}" || "${#SRC_FILES[@]}" != "${#INSTRUCTIONS[@]}" || "${#INSTRUCTIONS[@]}" != "${#RESULTS[@]}" ]]; then
-  err "Number of predictors, src files, instruction files and result files are not equal"
-  exit 1
-fi
+IFS=',' read -r -a PREDICTORS <<< "$predictors"
+IFS=',' read -r -a INSTRUCTIONS <<< "$instructions"
+IFS=',' read -r -a RESULTS <<< "$results"
+echo "Got $predictors as predictors"
+echo "Got $instructions as instructions"
+echo "Got $results as result"
 
 tests_count="${#PREDICTORS[@]}"
 if [[ "$tests_count" == 0 ]]; then
@@ -34,14 +36,8 @@ if [[ "$tests_count" == 0 ]]; then
   exit 1
 fi
 
-for array in "${SRC_FILES[@]}" "${INSTRUCTIONS[@]}" "${RESULTS[@]}"; do
+for array in "${INSTRUCTIONS[@]}" "${RESULTS[@]}"; do
   check-all-exist "$array"
-done
-
-rm "Predictor/src/main/java/hardwar/branch/prediction/judged/"*
-for ((i = 0; i < tests_count; i++)); do
-  file="${SRC_FILES[$i]}"
-  cp "$file" "Predictor/src/main/java/hardwar/branch/prediction/judged/"
 done
 
 for project in "Shared" "Predictor" "Judge"; do
@@ -53,11 +49,12 @@ for ((i = 0; i < tests_count; i++)); do
   predictor_name="${PREDICTORS[$i]}"
   instruction_file="${INSTRUCTIONS[$i]}"
   result_file="${RESULTS[$i]}"
-
+  
+  echo "Running test $i"
   java -jar Judge/target/Judge-1.0-SNAPSHOT-jar-with-dependencies.jar \
     --instruction "$instruction_file" \
     --result "$result_file" \
-    --predictor "$predictor_name"
+    --predictor "$predictor_name" &> grade.txt
+  echo "Ran test $i"
 done
 
-rm "Predictor/src/main/java/hardwar/branch/prediction/judged/"*
