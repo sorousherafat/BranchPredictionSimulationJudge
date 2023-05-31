@@ -1,7 +1,14 @@
 package hardwar.branch.prediction.shared.devices;
 
+
 import hardwar.branch.prediction.shared.Monitorable;
 
+/*
+simple Cache interface
+
+read the functions documentation if anything is unclear
+
+ */
 public interface Cache<K, V> extends Monitorable {
     /**
      * @param key think of key as address
@@ -14,6 +21,7 @@ public interface Cache<K, V> extends Monitorable {
      * @param value the data which is saved in address (key)
      */
     void put(K key, V value);
+
 
     /**
      * map a value to the key if the key is not found in the cache

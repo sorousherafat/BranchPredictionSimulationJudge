@@ -20,6 +20,7 @@ package hardwar.branch.prediction.shared.devices;
  * -------------------------------------------------------
  */
 
+
 import hardwar.branch.prediction.shared.Bit;
 
 import java.util.Arrays;
@@ -28,17 +29,18 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class PageHistoryTable implements Cache<Bit[], Bit[]> {
-    private final int rowsNumber; // number of PHT entries
 
-    private final int columnsNumber; // number of bits in a block
+    private final int nRows; // number of PHT entries
+    private final int nColumns; // number of bits in a block
+    private final Map<String, Bit[]> PHT; // save entry and blocks
 
-    private final Map<String, Bit[]> historyTable; // save entry and blocks
 
-    public PageHistoryTable(int rowsNumber, int columnsNumber) {
-        this.rowsNumber = rowsNumber;
-        this.columnsNumber = columnsNumber;
-        this.historyTable = new TreeMap<>();
+    public PageHistoryTable(int nRows, int nColumns) {
+        this.nRows = nRows;
+        this.nColumns = nColumns;
+        this.PHT = new TreeMap<>();
     }
+
 
     /**
      * Get the value associated with the given key from the cache, or a default value if the key is not found.
@@ -49,7 +51,7 @@ public class PageHistoryTable implements Cache<Bit[], Bit[]> {
     @Override
     public Bit[] get(Bit[] entry) {
         // Convert the entry array to a string and use it as the key for PHT.getOrDefault()
-        return historyTable.get(Bit.arrayToString(entry));
+        return PHT.get(Bit.arrayToString(entry));
     }
 
     /**
@@ -62,13 +64,13 @@ public class PageHistoryTable implements Cache<Bit[], Bit[]> {
     @Override
     public void put(Bit[] entry, Bit[] value) {
         // Check that the length of the block is equal to nColumns
-        if (value.length != columnsNumber) {
+        if (value.length != nColumns) {
             throw new RuntimeException("invalid number of bits for cache block");
         }
 
         // Convert the entry array to a string and use it as the key for PHT.put()
         String entryS = Bit.arrayToString(entry);
-        historyTable.put(entryS, Arrays.copyOf(value, columnsNumber));
+        PHT.put(entryS, Arrays.copyOf(value, nColumns));
     }
 
     /**
@@ -83,7 +85,7 @@ public class PageHistoryTable implements Cache<Bit[], Bit[]> {
 
         // If the entry is not found in the cache, insert the default value and return it
         if (block == null) {
-            put(entry, Arrays.copyOf(value, columnsNumber));
+            put(entry, Arrays.copyOf(value, nColumns));
         }
     }
 
@@ -107,7 +109,7 @@ public class PageHistoryTable implements Cache<Bit[], Bit[]> {
      */
     @Override
     public void clear() {
-        historyTable.clear();
+        PHT.clear();
     }
 
     /**
@@ -122,7 +124,7 @@ public class PageHistoryTable implements Cache<Bit[], Bit[]> {
         sb.append(String.format("| %-19s | %-10s |\n", "Address", "Block"));
         sb.append("|---------------------|------------|\n");
 
-        for (HashMap.Entry<String, Bit[]> entry : historyTable.entrySet()) {
+        for (HashMap.Entry<String, Bit[]> entry : PHT.entrySet()) {
             String address = entry.getKey();
             Bit[] block = entry.getValue();
             if (address.length() > 16) {

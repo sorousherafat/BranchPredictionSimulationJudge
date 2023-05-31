@@ -21,6 +21,7 @@ package hardwar.branch.prediction.shared.devices;
  * ------------------------------------------------------
  */
 
+
 import hardwar.branch.prediction.shared.Bit;
 
 import java.util.Arrays;
@@ -29,20 +30,20 @@ import java.util.TreeMap;
 
 public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
 
-    private final int branchAddressSelectorBitsNumber; // number of bits from pc which determine which PHT in PAPHT must be used.
-    private final int rowsPerPageHistoryTableNumber; // number of rows per PHT
-    private final int columnsPerBlockNumber; // number of columns per block in a PHT
-    private final Map<String, Cache<Bit[], Bit[]>> historyTables; // per address prediction history table. string represent the
+    private final int nPCSelector; // number of bits from pc which determine which PHT in PAPHT must be used.
+    private final int nRowsPerPHT; // number of rows per PHT
+    private final int nColumnsPerBlock; // number of columns per block in a PHT
+    private final Map<String, Cache<Bit[], Bit[]>> PAPHT; // per address prediction history table. string represent the
     // PHT which must be used and the cache is the PHT associated to that slice of PC
 
 
-    public PerAddressPageHistoryTable(int branchAddressSelectorBitsNumber, int rowsPerPageHistoryTableNumber, int columnsPerBlockNumber) {
-        this.branchAddressSelectorBitsNumber = branchAddressSelectorBitsNumber;
-        this.rowsPerPageHistoryTableNumber = rowsPerPageHistoryTableNumber;
-        this.columnsPerBlockNumber = columnsPerBlockNumber;
+    public PerAddressPageHistoryTable(int nPCSelector, int nRowsPerPHT, int nColumnsPerBlock) {
+        this.nPCSelector = nPCSelector;
+        this.nRowsPerPHT = nRowsPerPHT;
+        this.nColumnsPerBlock = nColumnsPerBlock;
 
         // initialize the Per Address Predication History Table
-        this.historyTables = new TreeMap<>();
+        this.PAPHT = new TreeMap<>();
     }
 
     /**
@@ -55,8 +56,8 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
         String cacheSelector = getCacheSelector(entry);
         Bit[] blockSelector = getBlockSelector(entry);
 
-        Cache<Bit[], Bit[]> historyTable = historyTables.get(cacheSelector);
-        return historyTable.get(blockSelector);
+        Cache<Bit[], Bit[]> PHT = PAPHT.get(cacheSelector);
+        return PHT.get(blockSelector);
     }
 
     /**
@@ -69,21 +70,21 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
     @Override
     public void put(Bit[] entry, Bit[] value) {
         // Check that the length of the block is equal to nColumns
-        if (value.length != columnsPerBlockNumber) {
+        if (value.length != nColumnsPerBlock) {
             throw new RuntimeException("invalid number of bits for cache block");
         }
 
         String cacheSelector = getCacheSelector(entry);
         Bit[] blockSelector = getBlockSelector(entry);
 
-        Cache<Bit[], Bit[]> historyTable = historyTables.get(cacheSelector);
-        if (historyTable == null) throw new RuntimeException("The history table is not associated to the PAPHT");
-        historyTable.put(blockSelector, value);
+        Cache<Bit[], Bit[]> PHT = PAPHT.get(cacheSelector);
+        if (PHT == null) throw new RuntimeException("The PHT is not associated to the PAPHT");
+        PHT.put(blockSelector, value);
     }
 
     /**
      * If the cache is not associated yet or no block is mapped to the PHT then map the default value
-     * to the history tables
+     * to the PAPHT
      *
      * @param entry the address which is selected to put the data in it
      * @param value the data which is saved in address (key) if the key is not mapped to any not-null data
@@ -91,19 +92,19 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
     @Override
     public void putIfAbsent(Bit[] entry, Bit[] value) {
         // Check that the length of the block is equal to nColumns
-        if (value.length != columnsPerBlockNumber) {
+        if (value.length != nColumnsPerBlock) {
             throw new RuntimeException("invalid number of bits for cache block");
         }
 
         String cacheSelector = getCacheSelector(entry);
         Bit[] blockSelector = getBlockSelector(entry);
 
-        Cache<Bit[], Bit[]> historyTable = historyTables.get(cacheSelector);
-        if (historyTable == null) {
-            historyTable = new PageHistoryTable(rowsPerPageHistoryTableNumber, columnsPerBlockNumber);
-            historyTables.put(cacheSelector, historyTable);
+        Cache<Bit[], Bit[]> PHT = PAPHT.get(cacheSelector);
+        if (PHT == null) {
+            PHT = new PageHistoryTable(nRowsPerPHT, nColumnsPerBlock);
+            PAPHT.put(cacheSelector, PHT);
         }
-        historyTable.putIfAbsent(blockSelector, value);
+        PHT.putIfAbsent(blockSelector, value);
     }
 
     /**
@@ -126,7 +127,7 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
      * @return the cache selector bits
      */
     private String getCacheSelector(Bit[] entry) {
-        return Bit.arrayToString(Arrays.copyOf(entry, branchAddressSelectorBitsNumber));
+        return Bit.arrayToString(Arrays.copyOf(entry, nPCSelector));
     }
 
     /**
@@ -136,7 +137,7 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
      * @return the block selector bits.
      */
     private Bit[] getBlockSelector(Bit[] entry) {
-        return Arrays.copyOfRange(entry, branchAddressSelectorBitsNumber, entry.length);
+        return Arrays.copyOfRange(entry, nPCSelector, entry.length);
     }
 
 
@@ -145,8 +146,8 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
      */
     @Override
     public void clear() {
-        historyTables.forEach((k, v) -> v.clear());
-        historyTables.clear();
+        PAPHT.forEach((k, v) -> v.clear());
+        PAPHT.clear();
     }
 
     /**
@@ -159,7 +160,7 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
     @Override
     public String monitor() {
         StringBuilder sb = new StringBuilder();
-        historyTables.forEach((k, v) -> {
+        PAPHT.forEach((k, v) -> {
             sb.append("PHT for selector: ");
             sb.append(k);
             sb.append("\n");

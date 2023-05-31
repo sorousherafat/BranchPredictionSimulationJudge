@@ -1,7 +1,6 @@
 package hardwar.branch.prediction.shared;
 
 import java.util.Arrays;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 public enum Bit {

@@ -1,5 +1,6 @@
 package hardwar.branch.prediction.shared.devices;
 
+
 import hardwar.branch.prediction.shared.Bit;
 import hardwar.branch.prediction.shared.Monitorable;
 

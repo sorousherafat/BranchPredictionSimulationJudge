@@ -1,7 +1,9 @@
 package hardwar.branch.prediction.shared.devices;
 
+
 import hardwar.branch.prediction.shared.Bit;
 import hardwar.branch.prediction.shared.CountMode;
+import hardwar.branch.prediction.shared.HashMode;
 
 import java.util.Arrays;
 
@@ -66,5 +68,43 @@ public final class CombinationalLogic {
 
             return bits;
         }
+    }
+
+
+    /**
+     * @param input        the hash function
+     * @param outBitNumber number of output bits
+     * @param mode         hash mode
+     * @return hashed value of input based on the specified mode
+     */
+    public static Bit[] hash(Bit[] input, int outBitNumber, HashMode mode) {
+        if (mode == HashMode.XOR) {
+            return hash(input, outBitNumber);
+        } else throw new UnsupportedOperationException();
+
+    }
+
+
+    /**
+     * hash N bits to a K bit value
+     *
+     * @param bits program counter
+     * @return hash value of fist M bits of `bits` in K bits
+     */
+    private static Bit[] hash(Bit[] bits, int outBitNumber) {
+        Bit[] hash = new Bit[outBitNumber];
+
+        // XOR the first M bits of the PC to produce the hash
+        for (int i = 0; i < bits.length; i++) {
+            int j = i % outBitNumber;
+            if (hash[j] == null) {
+                hash[j] = bits[i];
+            } else {
+                Bit xorProduce = hash[j].getValue() ^ bits[i].getValue() ? Bit.ONE : Bit.ZERO;
+                hash[j] = xorProduce;
+
+            }
+        }
+        return hash;
     }
 }
