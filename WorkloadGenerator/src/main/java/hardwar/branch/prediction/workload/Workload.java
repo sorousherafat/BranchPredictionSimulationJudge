@@ -6,20 +6,20 @@ import hardwar.branch.prediction.shared.BranchResult;
 import java.util.List;
 
 public class Workload {
-    private final List<BranchInstruction> instructions;
+    private final List<BranchInstruction> instruction;
 
-    private final List<BranchResult> results;
+    private final List<BranchResult> result;
 
-    public Workload(List<BranchInstruction> instructions, List<BranchResult> results) {
-        this.instructions = instructions;
-        this.results = results;
+    public Workload(List<BranchInstruction> instruction, List<BranchResult> result) {
+        this.instruction = instruction;
+        this.result = result;
     }
 
-    public List<BranchInstruction> getInstructions() {
-        return instructions;
+    public List<BranchInstruction> getInstruction() {
+        return instruction;
     }
 
-    public List<BranchResult> getResults() {
-        return results;
+    public List<BranchResult> getResult() {
+        return result;
     }
 }
