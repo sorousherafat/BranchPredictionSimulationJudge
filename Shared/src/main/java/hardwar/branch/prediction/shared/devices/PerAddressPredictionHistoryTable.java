@@ -1,7 +1,7 @@
 package hardwar.branch.prediction.shared.devices;
 
 /*
- * Our Per Address Page History Table
+ * Our Per Address Predication History Table
  * read below assumptions about pre-defined PAPHT
  * ------------------------------------------------------
  * ASSUMPTIONS:
@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
+public class PerAddressPredictionHistoryTable implements Cache<Bit[], Bit[]> {
 
     private final int nPCSelector; // number of bits from pc which determine which PHT in PAPHT must be used.
     private final int nRowsPerPHT; // number of rows per PHT
@@ -37,7 +37,7 @@ public class PerAddressPageHistoryTable implements Cache<Bit[], Bit[]> {
     // PHT which must be used and the cache is the PHT associated to that slice of PC
 
 
-    public PerAddressPageHistoryTable(int nPCSelector, int nRowsPerPHT, int nColumnsPerBlock) {
+    public PerAddressPredictionHistoryTable(int nPCSelector, int nRowsPerPHT, int nColumnsPerBlock) {
         this.nPCSelector = nPCSelector;
         this.nRowsPerPHT = nRowsPerPHT;
         this.nColumnsPerBlock = nColumnsPerBlock;
