@@ -3,11 +3,10 @@ package hardwar.branch.prediction.judge.args;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import hardwar.branch.prediction.judge.args.NonEmptyStringValidator;
 
 import java.io.File;
 
-public class CommandLineArguments {
+public class JudgeArguments {
     @Parameter(names = {"--instruction", "-i"}, description = "Path to json file containing instructions", converter = ReadFileConverter.class, validateWith = NonEmptyStringValidator.class, help = true, required = true)
     private File instructionFile;
 
@@ -36,7 +35,7 @@ public class CommandLineArguments {
         public File convert(String value) {
             File file = new File(value);
             if (!file.exists())
-                throw new ParameterException("File '" + value + "'does not exist");
+                throw new ParameterException("File '" + value + "' does not exist");
             return file;
         }
     }

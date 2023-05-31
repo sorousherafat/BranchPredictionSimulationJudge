@@ -14,4 +14,13 @@ public class ListUtils {
                 .filter(i -> firstList.get(i).equals(secondList.get(i)))
                 .count();
     }
+
+    public static <T> double getSimilarity(List<T> firstList, List<T> secondList) {
+        if (firstList.size() != secondList.size())
+            throw new RuntimeException("Lists do not have equal size");
+
+        long equalElements = countEqualElements(firstList, secondList);
+        long allElements = firstList.size();
+        return (double) equalElements / allElements;
+    }
 }

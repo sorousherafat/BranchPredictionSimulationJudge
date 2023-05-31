@@ -1,82 +1,60 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
+readonly ROOT_DIR="$PWD"
 
-readonly JUDGED_DIR="src/main/java/hardwar/branch/prediction/judged"
-
-# Define usage function to display script usage instructions
-usage() {
-  echo "Usage: $0 --predictor <predictor-name> --source <source-file>"
+err() {
+  echo "$1" >&2
 }
 
-# Process command-line arguments
-options=$(getopt -o p:s: --long predictor:,source: -n "$0" -- "$@")
-eval set -- "$options"
+build-project() {
+  cd "$ROOT_DIR" || exit 1
+  cd "$1" || exit 1
+  mvn clean install
+  echo "Build done!"
+}
 
-# Variables to store the values
-predictor=""
-source_file=""
-
-# Loop through the command-line arguments
-while true; do
-  case "$1" in
-    -p | --predictor)
-      predictor="$2"
-      shift 2
-    ;;
-    -s | --source)
-      source_file="$2"
-      shift 2
-    ;;
-    --)
-      shift
-      break
-    ;;
-    *)
-      usage
+check-all-exist() {
+  local array="$*"
+  for file in "${array[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      err "File $file does not exist"
       exit 1
-    ;;
-  esac
+    fi
+  done
+}
+
+IFS=',' read -r -a PREDICTORS <<< "$predictors"
+IFS=',' read -r -a INSTRUCTIONS <<< "$instructions"
+IFS=',' read -r -a RESULTS <<< "$results"
+echo "Got $predictors as predictors"
+echo "Got $instructions as instructions"
+echo "Got $results as result"
+
+tests_count="${#PREDICTORS[@]}"
+if [[ "$tests_count" == 0 ]]; then
+  err "There are no predictors, src files, instruction files and result files specified in environment"
+  exit 1
+fi
+
+for array in "${INSTRUCTIONS[@]}" "${RESULTS[@]}"; do
+  check-all-exist "$array"
 done
 
-# Check if the required arguments are provided
-if [[ -z "$predictor" || -z "$source_file" ]]; then
-  usage
-  exit 1
-fi
+for project in "Shared" "Predictor" "Judge"; do
+  build-project "$project"
+done
+cd "$ROOT_DIR" || exit 1
 
-# Check if the predictor directory exists
-readonly predictor_path="Test/$predictor"
-if [[ ! -d "$predictor_path" ]]; then
-  echo "Predictor directory '$predictor' does not exist."
-  exit 1
-fi
+for ((i = 0; i < tests_count; i++)); do
+  predictor_name="${PREDICTORS[$i]}"
+  instruction_file="${INSTRUCTIONS[$i]}"
+  result_file="${RESULTS[$i]}"
+  
+  echo "Running test $i"
+  java -jar Judge/target/Judge-1.0-SNAPSHOT-jar-with-dependencies.jar \
+    --instruction "$instruction_file" \
+    --result "$result_file" \
+    --predictor "$predictor_name" &> grade.txt
+  echo "Ran test $i"
+done
 
-# Check if `instruction.json` and `result.json` files exist
-readonly instruction_file="$predictor_path/instruction.json"
-readonly result_file="$predictor_path/result.json"
-if [[ ! -f "$instruction_file" || ! -f "$result_file" ]]; then
-  echo "Instruction or result file does not exist inside the predictor directory '$predictor'"
-  exit 1
-fi
-
-# Check if the source file exists
-if [[ ! -f "$source_file" ]]; then
-  echo "Source file '$source_file' does not exist."
-  exit 1
-fi
-
-# Build and install the source file
-cd ToBeJudgedPredictor
-rm "$JUDGED_DIR"/* || true
-cp "../$source_file" "$JUDGED_DIR"
-mvn clean install
-
-echo ""
-
-# Judge the predictor
-cd ../Judge
-mvn clean test -Dpredictor="../$predictor"                         \
-               -Dinstruction="../$predictor_path/instruction.json" \
-               -Dresult="../$predictor_path/result.json"
