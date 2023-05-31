@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-public class ActualWorkloadGenerator {
+public class ActualWorkloadGenerator implements WorkloadGenerator {
     private static final Random random = new SecureRandom();
 
     private static final Function<Integer, Bit> randomBitGenerator = i -> Bit.of(random.nextDouble() < 0.5);
@@ -47,8 +47,8 @@ public class ActualWorkloadGenerator {
         List<BranchInstruction> instructions = new ArrayList<>(this.branchCount);
         List<BranchResult> results = new ArrayList<>(this.branchCount);
         IntStream.range(0, this.branchCount).forEach(i -> {
-            instructions.set(i, generateInstruction());
-            results.set(i, generateResult());
+            instructions.add(generateInstruction());
+            results.add(generateResult());
         });
 
         return new Workload(instructions, results);
@@ -56,7 +56,7 @@ public class ActualWorkloadGenerator {
 
     private void initAddressList(List<Bit[]> addresses) {
         IntStream.range(0, this.distinctAddressCount)
-                .forEach(i -> addresses.set(i, generateFromFunction(this.addressLength, randomBitGenerator)));
+                .forEach(i -> addresses.add(generateFromFunction(this.addressLength, randomBitGenerator)));
     }
 
     private BranchInstruction generateInstruction() {
