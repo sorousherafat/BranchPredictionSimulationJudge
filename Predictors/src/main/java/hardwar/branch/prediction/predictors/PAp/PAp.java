@@ -16,6 +16,10 @@ public class PAp implements BranchPredictor {
 
     private final Cache<Bit[], Bit[]> PAPHT; // Per Address Predication History Table
 
+    public PAp() {
+        this(4, 2, 8);
+    }
+
     public PAp(int BHRSize, int SCSize, int branchInstructionSize) {
         this.branchInstructionSize = branchInstructionSize;
 

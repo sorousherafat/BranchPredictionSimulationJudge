@@ -16,8 +16,8 @@ public class PAp implements BranchPredictor {
 
     private final Cache<Bit[], Bit[]> PAPHT; // Per Address Predication History Table
 
-    public PAp(){
-        this(4, 2, 4);
+    public PAp() {
+        this(4, 2, 8);
     }
 
     public PAp(int BHRSize, int SCSize, int branchInstructionSize) {
@@ -36,13 +36,45 @@ public class PAp implements BranchPredictor {
 
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
-        //TODO: complete Task 1
-        return null;
+        // instruction address
+        Bit[] instructionAddress = branchInstruction.getInstructionAddress();
+
+        // select the BHR based on branch instruction address
+        ShiftRegister correspondingBHR = PABHR.read(instructionAddress);
+
+        // get PAPHT entry by concatenating the branch address and BHR
+        Bit[] cacheEntry = getCacheEntry(instructionAddress, correspondingBHR.read());
+
+        // Get the associated block with the cacheEntry from the PAPHT
+        Bit[] cacheBlock = PAPHT.setDefault(cacheEntry, getDefaultBlock());
+
+        // load the block into the register
+        SC.load(cacheBlock);
+
+        // Return the predicted outcome of the branch instruction based on the value of the MSB
+        return cacheBlock[0].getValue() ? BranchResult.TAKEN : BranchResult.NOT_TAKEN;
     }
 
     @Override
     public void update(BranchInstruction instruction, BranchResult actual) {
-        //TODO: complete Task 2
+        // check the predication result
+        boolean isTaken = actual == BranchResult.TAKEN;
+
+        // update saturating counter
+        Bit[] nValue = CombinationalLogic.count(SC.read(), isTaken, CountMode.SATURATING);
+
+        // get register number
+        Bit[] instructionAddress = instruction.getInstructionAddress();
+
+        // get register from register bank
+        ShiftRegister correspondingBHR = PABHR.read(instructionAddress);
+
+        // update the PAPHT
+        PAPHT.put(getCacheEntry(instructionAddress, correspondingBHR.read()), nValue);
+
+        // update branch history
+        correspondingBHR.insert(isTaken ? Bit.ONE : Bit.ZERO);
+        PABHR.write(instructionAddress, correspondingBHR.read());
     }
 
 
