@@ -10,6 +10,9 @@ import java.util.stream.IntStream;
 
 public class ListUtils {
     public static <T> long countEqualElements(List<T> firstList, List<T> secondList) {
+        if (firstList.size() != secondList.size())
+            throw new RuntimeException("Two lists do not have same size");
+
         return IntStream.range(0, Math.min(firstList.size(), secondList.size()))
                 .filter(i -> firstList.get(i).equals(secondList.get(i)))
                 .count();
