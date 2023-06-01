@@ -47,6 +47,8 @@ for project in "Shared" "Predictor" "Judge"; do
 done
 cd "$ROOT_DIR" || exit 1
 
+date > grade.txt
+
 for ((i = 0; i < tests_count; i++)); do
   predictor_name="${PREDICTORS[$i]}"
   instruction_file="${INSTRUCTIONS[$i]}"
@@ -58,7 +60,7 @@ for ((i = 0; i < tests_count; i++)); do
     --instruction "$instruction_file" \
     --result "$result_file" \
     --expected-result "$expected_result_file" \
-    --predictor "$predictor_name" &> grade.txt
+    --predictor "$predictor_name" >>grade.txt 2>&1
   echo "Ran test $i"
 done
 
