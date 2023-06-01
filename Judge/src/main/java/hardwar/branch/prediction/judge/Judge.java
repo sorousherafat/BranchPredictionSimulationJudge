@@ -24,17 +24,19 @@ public class Judge {
 
         FileReader fileReader = new FileReader();
         List<BranchInstruction> instructions = fileReader.readInstructions(arguments.getInstructionFile());
-        List<BranchResult> expectedResults = fileReader.readResults(arguments.getResultFile());
+        List<BranchResult> results = fileReader.readResults(arguments.getResultFile());
+        List<BranchResult> expectedResults = fileReader.readResults(arguments.getExpectedResultFile());
 
         PredictorSimulator simulator = getSimulator(arguments.getPredictorName());
-        List<BranchResult> actualResults = simulator.simulate(instructions, expectedResults);
+        List<BranchResult> actualResults = simulator.simulate(instructions, results);
 
+        long equalResults = ListUtils.countEqualElements(actualResults, expectedResults);
+        long total = results.size();
         boolean testPassed = actualResults.equals(expectedResults);
         if (!testPassed) {
-            long equalResults = ListUtils.countEqualElements(actualResults, expectedResults);
-            long total = expectedResults.size();
             throw new TestFailedException(equalResults, total);
         }
+        System.out.println("Test passed, " + equalResults + " out of " + total + " assertions passed");
     }
 
     private static PredictorSimulator getSimulator(String predictorName) {

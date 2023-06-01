@@ -9,7 +9,7 @@ err() {
 build-project() {
   cd "$ROOT_DIR" || exit 1
   cd "$1" || exit 1
-  mvn clean install
+  mvn clean install >> /dev/null
   echo "Build done!"
 }
 
@@ -26,9 +26,11 @@ check-all-exist() {
 IFS=',' read -r -a PREDICTORS <<< "$predictors"
 IFS=',' read -r -a INSTRUCTIONS <<< "$instructions"
 IFS=',' read -r -a RESULTS <<< "$results"
+IFS=',' read -r -a EXPECTED_RESULTS <<< "$expected_results"
 echo "Got $predictors as predictors"
 echo "Got $instructions as instructions"
 echo "Got $results as result"
+echo "Got $expected_results as expected result"
 
 tests_count="${#PREDICTORS[@]}"
 if [[ "$tests_count" == 0 ]]; then
@@ -36,7 +38,7 @@ if [[ "$tests_count" == 0 ]]; then
   exit 1
 fi
 
-for array in "${INSTRUCTIONS[@]}" "${RESULTS[@]}"; do
+for array in "${INSTRUCTIONS[@]}" "${RESULTS[@]}" "${EXPECTED_RESULTS[@]}"; do
   check-all-exist "$array"
 done
 
@@ -49,11 +51,13 @@ for ((i = 0; i < tests_count; i++)); do
   predictor_name="${PREDICTORS[$i]}"
   instruction_file="${INSTRUCTIONS[$i]}"
   result_file="${RESULTS[$i]}"
+  expected_result_file="${EXPECTED_RESULTS[$i]}"
   
   echo "Running test $i"
   java -jar Judge/target/Judge-1.0-SNAPSHOT-jar-with-dependencies.jar \
     --instruction "$instruction_file" \
     --result "$result_file" \
+    --expected-result "$expected_result_file" \
     --predictor "$predictor_name" &> grade.txt
   echo "Ran test $i"
 done

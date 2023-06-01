@@ -10,9 +10,12 @@ public class Workload {
 
     private final List<BranchResult> result;
 
-    public Workload(List<BranchInstruction> instruction, List<BranchResult> result) {
+    private final List<BranchResult> expectedResult;
+
+    public Workload(List<BranchInstruction> instruction, List<BranchResult> result, List<BranchResult> expectedResult) {
         this.instruction = instruction;
         this.result = result;
+        this.expectedResult = expectedResult;
     }
 
     public List<BranchInstruction> getInstruction() {
@@ -21,5 +24,9 @@ public class Workload {
 
     public List<BranchResult> getResult() {
         return result;
+    }
+
+    public List<BranchResult> getExpectedResult() {
+        return expectedResult;
     }
 }

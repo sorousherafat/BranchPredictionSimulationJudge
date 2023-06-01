@@ -1,7 +1,7 @@
 package hardwar.branch.prediction.workload;
 
 public class ActualWorkloadGeneratorBuilder {
-    private int branchCount = 20;
+    private int branchCount = 1000;
     private int opcodeLength = 6;
     private int addressLength = 8;
     private int distinctAddressCount = 8;

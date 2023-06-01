@@ -27,9 +27,9 @@ public class DefaultWorkloadGenerator implements WorkloadGenerator {
         Workload actualWorkload = actualGenerator.generate();
         List<BranchInstruction> instruction = actualWorkload.getInstruction();
         List<BranchResult> result = actualWorkload.getResult();
-        List<BranchResult> predictionResult = simulator.simulate(instruction, result);
-        double hitRate = ListUtils.getSimilarity(result, predictionResult);
+        List<BranchResult> expectedResult = simulator.simulate(instruction, result);
+        double hitRate = ListUtils.getSimilarity(expectedResult, result);
         System.out.printf("Hit rate: %f\n", hitRate);
-        return new Workload(instruction, predictionResult);
+        return new Workload(instruction, result, expectedResult);
     }
 }

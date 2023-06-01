@@ -34,10 +34,11 @@ public class PrimeWorkloadGenerator implements WorkloadGenerator {
             boolean passedTest = tester.test(actualWorkload);
             if (passedTest) {
                 List<BranchInstruction> instruction = actualWorkload.getInstruction();
-                List<BranchResult> predictionResult = simulator.simulate(instruction, actualWorkload.getResult());
-                double hitRate = ListUtils.getSimilarity(actualWorkload.getResult(), predictionResult);
+                List<BranchResult> result = actualWorkload.getResult();
+                List<BranchResult> expectedResult = simulator.simulate(instruction, result);
+                double hitRate = ListUtils.getSimilarity(result, expectedResult);
                 System.out.printf("Hit rate: %f\n", hitRate);
-                return new Workload(instruction, predictionResult);
+                return new Workload(instruction, result, expectedResult);
             }
 
             tryCount += 1;

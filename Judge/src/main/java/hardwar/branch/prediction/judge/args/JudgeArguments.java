@@ -13,6 +13,9 @@ public class JudgeArguments {
     @Parameter(names = {"--result", "-r"}, description = "Path to json file containing branch results", converter = ReadFileConverter.class, validateWith = NonEmptyStringValidator.class, help = true, required = true)
     private File resultFile;
 
+    @Parameter(names = {"--expected-result", "-e"}, description = "Path to json file containing expected predicted branch results by the predictor", converter = ReadFileConverter.class, validateWith = NonEmptyStringValidator.class, help = true, required = true)
+    private File expectedResultFile;
+
     @Parameter(names = {"--predictor", "-p"}, description = "Name of the predictor to judge", validateWith = NonEmptyStringValidator.class, help = true, required = true)
     private String predictorName;
 
@@ -22,6 +25,10 @@ public class JudgeArguments {
 
     public File getResultFile() {
         return resultFile;
+    }
+
+    public File getExpectedResultFile() {
+        return expectedResultFile;
     }
 
     public String getPredictorName() {

@@ -51,7 +51,7 @@ public class ActualWorkloadGenerator {
             results.add(generateResult());
         });
 
-        return new Workload(instructions, results);
+        return new Workload(instructions, results, null);
     }
 
     private void initAddressList(List<Bit[]> addresses) {

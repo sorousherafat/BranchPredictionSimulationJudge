@@ -23,19 +23,21 @@ public class WorkloadWriter {
     }
 
     public void write(Workload workload) {
-        write(workload, "instruction.json", "result.json");
+        write(workload, "instruction.json", "result.json", "expected-result.json");
     }
 
-    public void write(Workload workload, String instructionFilePath, String resultFilePath) {
-        write(workload, new File(instructionFilePath), new File(resultFilePath));
+    public void write(Workload workload, String instructionFilePath, String resultFilePath, String expectedResultFilePath) {
+        write(workload, new File(instructionFilePath), new File(resultFilePath), new File(expectedResultFilePath));
     }
 
-    public void write(Workload workload, File instructionFile, File resultFile) {
+    public void write(Workload workload, File instructionFile, File resultFile, File expectedResultFile) {
         List<BranchInstruction> instruction = workload.getInstruction();
         List<BranchResult> result = workload.getResult();
+        List<BranchResult> expectedResult = workload.getExpectedResult();
         try {
             objectMapper.writeValue(instructionFile, instruction);
             objectMapper.writeValue(resultFile, result);
+            objectMapper.writeValue(expectedResultFile, expectedResult);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
