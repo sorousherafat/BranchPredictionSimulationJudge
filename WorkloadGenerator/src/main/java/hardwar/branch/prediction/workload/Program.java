@@ -24,7 +24,7 @@ public class Program {
 
     private static WorkloadGenerator getGeneratorByArguments(WorkloadGeneratorArguments arguments, JCommander commander) {
         if (isForActual(arguments))
-            return new ActualWorkloadGeneratorBuilder().build();
+            return new RandomWorkloadGenerator();
 
         if (isForDefault(arguments))
             return new DefaultWorkloadGenerator(arguments.getBasePredictor());
