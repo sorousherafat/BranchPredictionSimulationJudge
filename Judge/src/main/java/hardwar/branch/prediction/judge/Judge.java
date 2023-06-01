@@ -34,10 +34,11 @@ public class Judge {
         long equalResults = ListUtils.countEqualElements(actualResults, expectedResults);
         long total = results.size();
         boolean testPassed = actualResults.equals(expectedResults);
-        System.out.println(arguments.getPredictorName() + ": ");
         if (!testPassed) {
+            System.err.println(arguments.getPredictorName() + ": ");
             throw new TestFailedException(equalResults, total);
         }
+        System.out.println(arguments.getPredictorName() + ": ");
         System.out.println("Test passed, " + equalResults + " out of " + total + " assertions passed");
         System.out.println();
     }
