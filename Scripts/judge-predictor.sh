@@ -9,7 +9,7 @@ err() {
 build-project() {
   cd "$ROOT_DIR" || exit 1
   cd "$1" || exit 1
-  mvn clean install || exit 1
+  mvn --no-transfer-progress clean install || exit 1
   echo "Build done!"
 }
 
