@@ -1,4 +1,4 @@
-package hardwar.branch.prediction.predictors.SAg;
+package hardwar.branch.prediction.judged.SAg;
 
 
 import hardwar.branch.prediction.shared.*;
@@ -13,6 +13,9 @@ public class SAg implements BranchPredictor {
     private final RegisterBank PSBHR; // per set branch history register
     private final Cache<Bit[], Bit[]> PHT; // page history table
 
+    public SAg() {
+        this(4, 2, 8, 4);
+    }
 
     public SAg(int BHRSize, int SCSize, int branchInstructionSize, int KSize) {
         this.branchInstructionSize = branchInstructionSize;
@@ -30,13 +33,42 @@ public class SAg implements BranchPredictor {
 
     @Override
     public BranchResult predict(BranchInstruction instruction) {
-        //TODO: complete Task 1
-        return null;
+        // get RB selector
+        Bit[] selector = getRBAddressLine(instruction.getInstructionAddress());
+
+        // select the BHR based on the selector
+        ShiftRegister correspondingBHR = PSBHR.read(selector);
+
+        // Get the associated block with the current value of the BHR register from the PHT
+        Bit[] cacheBlock = PHT.setDefault(correspondingBHR.read(), getDefaultBlock());
+
+        // load the block into the register
+        SC.load(cacheBlock);
+
+        // return the predicated outcome of the branch instruction based on the value of the MSB
+        return cacheBlock[0].getValue() ? BranchResult.TAKEN : BranchResult.NOT_TAKEN;
     }
 
     @Override
     public void update(BranchInstruction branchInstruction, BranchResult actual) {
-        //TODO: complete Task 2
+        // get the hash value of branch address
+        Bit[] selector = getRBAddressLine(branchInstruction.getInstructionAddress());
+
+        // check the predication result
+        boolean isTaken = actual == BranchResult.TAKEN;
+
+        // update saturating counter
+        Bit[] nValue = CombinationalLogic.count(SC.read(), isTaken, CountMode.SATURATING);
+
+        // get register from register bank
+        ShiftRegister correspondingBHR = PSBHR.read(selector);
+
+        // update the PHT
+        PHT.put(correspondingBHR.read(), nValue);
+
+        // update global history
+        correspondingBHR.insert(isTaken ? Bit.ONE : Bit.ZERO);
+        PSBHR.write(selector, correspondingBHR.read());
     }
 
     private Bit[] getRBAddressLine(Bit[] branchAddress) {

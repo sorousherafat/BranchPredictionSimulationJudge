@@ -1,4 +1,4 @@
-package hardwar.branch.prediction.predictors.GAp;
+package hardwar.branch.prediction.judged.GAp;
 
 import hardwar.branch.prediction.shared.*;
 import hardwar.branch.prediction.shared.devices.*;
@@ -11,6 +11,10 @@ public class GAp implements BranchPredictor {
     private final ShiftRegister BHR; // branch history register
     private final Cache<Bit[], Bit[]> PAPHT; // Per Address History Table
 
+    public GAp() {
+        this(4, 2, 8);
+    }
+
     /**
      * Creates a new GAp predictor with the given BHR register size and initializes the PAPHT based on
      * the branch instruction length and saturating counter size
@@ -20,7 +24,17 @@ public class GAp implements BranchPredictor {
      * @param branchInstructionSize the number of bits which is used for saving a branch instruction
      */
     public GAp(int BHRSize, int SCSize, int branchInstructionSize) {
-        //TODO: complete Task 1
+        this.branchInstructionSize = branchInstructionSize;
+
+        // Initialize the BHR register with the given size and no default value
+        this.BHR = new SIPORegister("bhr", BHRSize, null);
+
+        // Initializing the PAPHT with BranchInstructionSize as PHT Selector and 2^BHRSize row as each PHT entries
+        // number and SCSize as block size
+        PAPHT = new PerAddressPredictionHistoryTable(branchInstructionSize, (int) Math.pow(2, BHRSize), SCSize);
+
+        // Initialize the SC register
+        SC = new SIPORegister("sc", SCSize, null);
     }
 
     /**
@@ -31,8 +45,17 @@ public class GAp implements BranchPredictor {
      */
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
-        //TODO: complete Task 2
-        return null;
+        // get PAPHT entry by concatenating the branch address and BHR
+        Bit[] cacheEntry = getCacheEntry(branchInstruction.getInstructionAddress());
+
+        // Get the associated block with the cacheEntry from the PAPHT
+        Bit[] cacheBlock = PAPHT.setDefault(cacheEntry, getDefaultBlock());
+
+        // load the block into the register
+        SC.load(cacheBlock);
+
+        // Return the predicted outcome of the branch instruction based on the value of the MSB
+        return cacheBlock[0].getValue() ? BranchResult.TAKEN : BranchResult.NOT_TAKEN;
     }
 
     /**

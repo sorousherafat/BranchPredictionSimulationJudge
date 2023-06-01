@@ -1,4 +1,4 @@
-package hardwar.branch.prediction.predictors.PAg;
+package hardwar.branch.prediction.judged.PAg;
 
 import hardwar.branch.prediction.shared.*;
 import hardwar.branch.prediction.shared.devices.*;
@@ -9,6 +9,10 @@ public class PAg implements BranchPredictor {
     private final ShiftRegister SC; // saturating counter register
     private final RegisterBank PABHR; // per address branch history register
     private final Cache<Bit[], Bit[]> PHT; // page history table
+
+    public PAg(){
+        this(4, 2, 8);
+    }
 
     /**
      * Creates a new PAg predictor with the given BHR register size and initializes the PABHR based on
@@ -35,8 +39,17 @@ public class PAg implements BranchPredictor {
      */
     @Override
     public BranchResult predict(BranchInstruction instruction) {
-        //TODO: complete Task 1
-        return null;
+        // select the BHR based on branch instruction address
+        ShiftRegister correspondingBHR = PABHR.read(instruction.getInstructionAddress());
+
+        // Get the associated block with the current value of the BHR register from the PHT
+        Bit[] cacheBlock = PHT.setDefault(correspondingBHR.read(), getDefaultBlock());
+
+        // load the block into the register
+        SC.load(cacheBlock);
+
+        // return the predicated outcome of the branch instruction based on the value of the MSB
+        return cacheBlock[0].getValue() ? BranchResult.TAKEN : BranchResult.NOT_TAKEN;
     }
 
     /**
@@ -45,8 +58,24 @@ public class PAg implements BranchPredictor {
      */
     @Override
     public void update(BranchInstruction instruction, BranchResult actual) {
-        //TODO: complete Task 2
+        // check the predication result
+        boolean isTaken = actual == BranchResult.TAKEN;
 
+        // update saturating counter
+        Bit[] nValue = CombinationalLogic.count(SC.read(), isTaken, CountMode.SATURATING);
+
+        // get register number
+        Bit[] RBSelector = instruction.getInstructionAddress();
+
+        // get register from register bank
+        ShiftRegister correspondingBHR = PABHR.read(RBSelector);
+
+        // add updated value to the cache
+        PHT.put(correspondingBHR.read(), nValue);
+
+        // update branch history
+        correspondingBHR.insert(isTaken ? Bit.ONE : Bit.ZERO);
+        PABHR.write(RBSelector, correspondingBHR.read());
     }
 
     /**

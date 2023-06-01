@@ -1,4 +1,4 @@
-package hardwar.branch.prediction.predictors.PAp;
+package hardwar.branch.prediction.judged.PAp;
 
 
 import hardwar.branch.prediction.shared.*;
@@ -16,6 +16,10 @@ public class PAp implements BranchPredictor {
 
     private final Cache<Bit[], Bit[]> PAPHT; // Per Address Predication History Table
 
+    public PAp(){
+        this(4, 2, 4);
+    }
+
     public PAp(int BHRSize, int SCSize, int branchInstructionSize) {
         this.branchInstructionSize = branchInstructionSize;
 
@@ -24,7 +28,7 @@ public class PAp implements BranchPredictor {
 
         // Initializing the PAPHT with BranchInstructionSize as PHT Selector and 2^BHRSize row as each PHT entries
         // number and SCSize as block size
-        PAPHT = new PerAddressPredicationHistoryTable(branchInstructionSize, (int) Math.pow(2, BHRSize), SCSize);
+        PAPHT = new PerAddressPredictionHistoryTable(branchInstructionSize, (int) Math.pow(2, BHRSize), SCSize);
 
         // Initialize the SC register
         SC = new SIPORegister("sc", SCSize, null);

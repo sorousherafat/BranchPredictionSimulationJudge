@@ -1,4 +1,4 @@
-package hardwar.branch.prediction.predictors.GAg;
+package hardwar.branch.prediction.judged.GAg;
 
 import hardwar.branch.prediction.shared.*;
 import hardwar.branch.prediction.shared.devices.*;
@@ -9,6 +9,10 @@ public class GAg implements BranchPredictor {
     private final ShiftRegister BHR; // branch history register
     private final Cache<Bit[], Bit[]> PHT; // page history table
     private final ShiftRegister SC; // saturated counter register
+
+    public GAg() {
+        this(4, 2);
+    }
 
     /**
      * Creates a new GAg predictor with the given BHR register size and initializes the BHR and PHT.
@@ -35,8 +39,17 @@ public class GAg implements BranchPredictor {
      */
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
-        //TODO: complete Task 1
-        return null;
+        // Read the current value of the BHR register
+        Bit[] BHRValue = BHR.read();
+
+        // Get the associated block with the current value of the BHR register from the PHT
+        Bit[] cacheBlock = PHT.setDefault(BHRValue, getDefaultBlock());
+
+        // load the block into the register
+        SC.load(cacheBlock);
+
+        // Return the predicted outcome of the branch instruction based on the value of the MSB
+        return cacheBlock[0].getValue() ? BranchResult.TAKEN : BranchResult.NOT_TAKEN;
     }
 
     /**
@@ -47,7 +60,17 @@ public class GAg implements BranchPredictor {
      */
     @Override
     public void update(BranchInstruction instruction, BranchResult actual) {
-        //TODO: complete Task 2
+        // check the predication result
+        boolean isTaken = actual == BranchResult.TAKEN;
+
+        // update saturating counter
+        Bit[] nValue = CombinationalLogic.count(SC.read(), isTaken, CountMode.SATURATING);
+
+        // add updated value to the cache
+        PHT.put(BHR.read(), nValue);
+
+        // update global history
+        BHR.insert(isTaken ? Bit.ONE : Bit.ZERO);
     }
 
 

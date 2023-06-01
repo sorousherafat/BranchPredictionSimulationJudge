@@ -1,4 +1,4 @@
-package hardwar.branch.prediction.predictors.PAs;
+package hardwar.branch.prediction.judged.PAs;
 
 
 import hardwar.branch.prediction.shared.*;
@@ -15,6 +15,9 @@ public class PAs implements BranchPredictor {
     private final RegisterBank PABHR; // per address Branch History Register
     private final Cache<Bit[], Bit[]> PSPHT; // Per Set Predication History Table
 
+    public PAs(){
+        this(4,2,8,4,HashMode.XOR);
+    }
 
     public PAs(int BHRSize, int SCSize, int branchInstructionSize, int KSize, HashMode hashMode) {
         this.branchInstructionSize = branchInstructionSize;
@@ -26,7 +29,7 @@ public class PAs implements BranchPredictor {
 
         // Initializing the PAPHT with K bit as PHT selector and 2^BHRSize row as each PHT entries
         // number and SCSize as block size
-        PSPHT = new PerAddressPredicationHistoryTable(KSize, (int) Math.pow(2, BHRSize), SCSize);
+        PSPHT = new PerAddressPredictionHistoryTable(KSize, (int) Math.pow(2, BHRSize), SCSize);
 
         // Initialize the saturating counter
         SC = new SIPORegister("sc", SCSize, null);
@@ -41,13 +44,45 @@ public class PAs implements BranchPredictor {
      */
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
-        //TODO: complete Task 1
-        return null;
+        // instruction address
+        Bit[] instructionAddress = branchInstruction.getInstructionAddress();
+
+        // select the BHR based on branch instruction address
+        ShiftRegister correspondingBHR = PABHR.read(instructionAddress);
+
+        // get PSPHT entry by concatenating the branch address and BHR
+        Bit[] cacheEntry = getCacheEntry(instructionAddress, correspondingBHR.read());
+
+        // Get the associated block with the cacheEntry from the PSPHT
+        Bit[] cacheBlock = PSPHT.setDefault(cacheEntry, getDefaultBlock());
+
+        // load the block into the register
+        SC.load(cacheBlock);
+
+        // Return the predicted outcome of the branch instruction based on the value of the MSB
+        return cacheBlock[0].getValue() ? BranchResult.TAKEN : BranchResult.NOT_TAKEN;
     }
 
     @Override
     public void update(BranchInstruction instruction, BranchResult actual) {
-        //TODO: complete Task 2
+        // check the predication result
+        boolean isTaken = actual == BranchResult.TAKEN;
+
+        // update saturating counter
+        Bit[] nValue = CombinationalLogic.count(SC.read(), isTaken, CountMode.SATURATING);
+
+        // get register number
+        Bit[] instructionAddress = instruction.getInstructionAddress();
+
+        // get register from register bank
+        ShiftRegister correspondingBHR = PABHR.read(instructionAddress);
+
+        // update the PAPHT
+        PSPHT.put(getCacheEntry(instructionAddress, correspondingBHR.read()), nValue);
+
+        // update branch history
+        correspondingBHR.insert(isTaken ? Bit.ONE : Bit.ZERO);
+        PABHR.write(instructionAddress, correspondingBHR.read());
     }
 
     @Override
